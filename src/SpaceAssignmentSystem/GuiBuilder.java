@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 import java.util.Properties;
 
 // Main GUI class, handles building SWING elements for rendering.
@@ -26,16 +25,17 @@ public class GuiBuilder extends JPanel {
 		System.out.println();
 		
 		DateSA d = new DateSA(12, 1);
-		
-//		Map<String, Booking[]> today = getFullDay(d);
+
 	
 		
-		String[] calColumnNames = { "Room 1", "Room 2", "Room 3", "Room 4", "Room 5", "Room 6", "Room 7" };
-		String[] userList = {"John Doe", "Jim Doe", "Jane Doe"};
-		Object[][] calData = buildDay();
-		String[] requestColumnNames = {"Name", "Room", "Start Time", "End Time", "Status"};
-		String[] batchList = {"Daily", "Weekly", "Monthly", "By Semester", "Annually"};
+		String[] calColumnNames = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
 
+		Object[][] calData = buildDay();
+	
+		String[] batchList = {"Daily", "Weekly", "Monthly", "Yearly"};
+		String[] statusList =  {"Open", "Booked", "Blacked Out"};
+		String[] userList = {"John Doe", "Mr. Smith", "Mrs. Smith", "Principle Skinner", "Alen Turing", "Java John"};
+		String[] requestColumnNames = {"Name", "Room", "Start Time", "End Time", "Status"};
 		String[][] requestData = {{"John Doe","Room 1", "Start Time", "End Time", "Approved"}, 
 							{"Jane Doe","Room 2", "Start Time", "End Time", "Pending"},
 							{"Fake Name", "Room 3", "Start Time", "End Time", "Denied"}};
@@ -44,9 +44,8 @@ public class GuiBuilder extends JPanel {
 		// Create the table for displaying rooms:		
 		JTable calTable = new JTable(calData, calColumnNames);
 		JTable requestTable = new JTable(requestData, requestColumnNames);
-		JComboBox<String> roomBox = new JComboBox<String>(calColumnNames);
-		JComboBox<String> userBox = new JComboBox<String>(userList);
-		JComboBox<String> batchBox = new JComboBox<String>(batchList);
+		JTable conflictTable = new JTable(requestData, requestColumnNames);
+		JTable noConflictTable = new JTable(requestData, requestColumnNames);
 		
 		// Set the cell rendering to center for all cells.
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() ;
@@ -58,173 +57,323 @@ public class GuiBuilder extends JPanel {
 		JTable rowTable = new RowNumberTable(calTable);
 		
 		// Create all other swing elements.
-		JLabel startL = new JLabel("Start:");
-		JLabel endL = new JLabel("End: ");
+		JLabel startL = new JLabel("Start Time:");
+		JLabel endL = new JLabel("End Time: ");
 		
-		// create all the swing panes and tables
+		// Create main / main wrapper panes 
 		JPanel mainPane = new JPanel(new  BorderLayout());
-		JPanel calenderToolBarPane = new JPanel(new BorderLayout());
-		JPanel requestWrapperPane = new JPanel(new BorderLayout());
-		JPanel scheduleWrapperPane = new JPanel(new BorderLayout());
-		JPanel approvalWrapperPane = new JPanel(new BorderLayout());
-		JPanel approvalToolBarPane = new JPanel(new BorderLayout());
-		JScrollPane calenderPane = new JScrollPane(calTable);			
 		JTabbedPane  tabWrapperPane = new JTabbedPane();
-		JScrollPane requestPane = new JScrollPane(requestTable);
-		JPanel requestToolBarPane = new JPanel(new BorderLayout());
-		JPanel requestButtonPane = new JPanel();
-		JPanel adminButtonPane = new JPanel();
-
 		JPanel calenderWrapperPane = new JPanel(new BorderLayout());
+		JPanel calenderToolBarPane = new JPanel(new BorderLayout());
+		JScrollPane calenderPane = new JScrollPane(calTable);	
 		
+		
+		JPanel requestWrapperPane = new JPanel(new BorderLayout());	
+		JScrollPane requestTablePane = new JScrollPane(requestTable);
+		JPanel requestButtonWrapperPane = new JPanel();
+		JPanel requestCheckPane = new JPanel(new GridLayout(3, 3));
+		JPanel requestButtonPane = new JPanel(new FlowLayout());
+				
+	
+
+		JPanel scheduleWrapperPane = new JPanel(new BorderLayout());
+		JPanel scheduleCheckPane = new JPanel(new GridLayout(3, 3));
+		JPanel scheduleButtonPane = new JPanel();
+		
+		
+		JPanel noConflictWrapperPane = new JPanel(new BorderLayout());
+		JScrollPane noConflictTablePane = new JScrollPane(noConflictTable);
+		JPanel noConflictButtonPane = new JPanel();
+		
+		JPanel conflictWrapperPane = new JPanel(new BorderLayout());
+		JScrollPane conflictTablePane = new JScrollPane(conflictTable);
+		JPanel conflictButtonPane = new JPanel();
+			
+		
+		
+		
+
 		
 		// Set up parameters and objects for JDatePicker swing elements 		
 		Date now = Calendar.getInstance().getTime();
 		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM d, yyy");
 		String today = DATE_FORMAT.format(now);
-		Properties p = new Properties();
-		p.put("text.today", "Today");
-		p.put("text.day", "Day");
-		p.put("text.month", "Month");
-		p.put("text.year", "Year");		
+		Properties pS = new Properties();
+		pS.put("text.today", "Today");
+		pS.put("text.day", "Day");
+		pS.put("text.month", "Month");
+		pS.put("text.year", "Year");			
+		UtilDateModel modelR = new UtilDateModel();	
+		UtilDateModel model = new UtilDateModel();	
+		JDatePanelImpl calenderDatePanel = new JDatePanelImpl(model, pS);
+		JDatePickerImpl calenderDatePicker = new JDatePickerImpl(calenderDatePanel, new DateComponentFormatter());
+		calenderDatePicker.getJFormattedTextField().setText(today);	
+		
+		
 		Properties pR = new Properties();
 		pR.put("text.today", "Today");
 		pR.put("text.day", "Day");
 		pR.put("text.month", "Month");
-		pR.put("text.year", "Year");		
-		UtilDateModel modelR = new UtilDateModel();	
-		UtilDateModel model = new UtilDateModel();	
-		JDatePanelImpl calenderDatePanel = new JDatePanelImpl(model, p);
-		JDatePickerImpl calenderDatePicker = new JDatePickerImpl(calenderDatePanel, new DateComponentFormatter());
-		calenderDatePicker.getJFormattedTextField().setText(today);		
+		pR.put("text.year", "Year");	
 		JDatePanelImpl requestDatePanel = new JDatePanelImpl(modelR, pR);
 		JDatePickerImpl requestDatePicker = new JDatePickerImpl(requestDatePanel, new DateComponentFormatter());
 		requestDatePicker.getJFormattedTextField().setText(today);		
 		
 		
-		// Build the JSpinner to enter in time of day for booking, both start and end.	
+		// Build the JSpinner to enter in time of day for booking, both start and end for both scheduler and request.
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.HOUR_OF_DAY,12);
 		cal.set(Calendar.MINUTE,00);
 		cal.set(Calendar.SECOND,0);
 		cal.set(Calendar.MILLISECOND,0);
-		Date startDate = cal.getTime();
-		Date endDate = cal.getTime();
-		MySpinnerDateModel startSpinnerModel = new MySpinnerDateModel(startDate, null, null, Calendar.MINUTE);
-		startSpinnerModel.setIncrement(15);
-		MySpinnerDateModel  endSpinnerModel = new MySpinnerDateModel (endDate, null, null, Calendar.MINUTE);
-		endSpinnerModel.setIncrement(15);
-        JSpinner startSpinner = new JSpinner(startSpinnerModel);
-        JSpinner endSpinner = new JSpinner(endSpinnerModel);
-        JSpinner.DateEditor se = new JSpinner.DateEditor(startSpinner, "hh:mm a");
-
-        se.getComponent(0).setFocusable(false);
-        JSpinner.DateEditor ee = new JSpinner.DateEditor(endSpinner, "hh:mm a");
-        ee.getComponent(0).setFocusable(false);
-        startSpinner.setEditor(se);
-        endSpinner.setEditor(ee);
+		Date requestStartDate = cal.getTime();
+		Date requestEndDate = cal.getTime();
+		MySpinnerDateModel requestStartSpinnerModel = new MySpinnerDateModel(requestStartDate, null, null, Calendar.MINUTE);
+		requestStartSpinnerModel.setIncrement(15);
+		MySpinnerDateModel  requestEndSpinnerModel = new MySpinnerDateModel (requestEndDate, null, null, Calendar.MINUTE);
+		requestEndSpinnerModel.setIncrement(15);
+        JSpinner requestStartSpinner = new JSpinner(requestEndSpinnerModel);
+        JSpinner requestEndSpinner = new JSpinner(requestStartSpinnerModel);
+        JSpinner.DateEditor rse = new JSpinner.DateEditor(requestStartSpinner, "hh:mm a");
+        rse.getComponent(0).setFocusable(false);
+        JSpinner.DateEditor ree = new JSpinner.DateEditor(requestEndSpinner, "hh:mm a");
+        ree.getComponent(0).setFocusable(false);
+        requestStartSpinner.setEditor(rse);
+        requestEndSpinner.setEditor(ree);
         
+		Date scheduleStartDate = cal.getTime();
+		Date scheduleEndDate = cal.getTime();
+		MySpinnerDateModel scheduleStartSpinnerModel = new MySpinnerDateModel(scheduleStartDate, null, null, Calendar.MINUTE);
+		scheduleStartSpinnerModel.setIncrement(15);
+		MySpinnerDateModel  scheduleEndSpinnerModel = new MySpinnerDateModel (scheduleEndDate, null, null, Calendar.MINUTE);
+		scheduleEndSpinnerModel.setIncrement(15);
+        JSpinner scheduleStartSpinner = new JSpinner(scheduleStartSpinnerModel);
+        JSpinner scheduletEndSpinner = new JSpinner(scheduleStartSpinnerModel);
+        JSpinner.DateEditor sse = new JSpinner.DateEditor(scheduleStartSpinner, "hh:mm a");
+        sse.getComponent(0).setFocusable(false);
+        JSpinner.DateEditor see = new JSpinner.DateEditor(scheduletEndSpinner, "hh:mm a");
+        see.getComponent(0).setFocusable(false);
+        scheduleStartSpinner.setEditor(sse);
+        requestEndSpinner.setEditor(see);
+        
+        
+        
+        
+		JComboBox<String> requestRoomBox = new JComboBox<String>(calColumnNames);
+		JComboBox<String> requestBatchBox = new JComboBox<String>(batchList);
+		JComboBox<String> requestUsersBox = new JComboBox<String>(userList);
+		JComboBox<String> scheduleRoomBox = new JComboBox<String>(calColumnNames);
+		JComboBox<String> scheduleBatchBox = new JComboBox<String>(batchList);
+		JComboBox<String> scheduleStatusBox = new JComboBox<String>(statusList);
+		
+		
+		 JCheckBox requestBoxM = new JCheckBox("Monday");  
+		 requestBoxM.setBounds(50, 50, 30,30);  
+		 JCheckBox requestBoxT = new JCheckBox("Tuesday");  
+		 requestBoxT.setBounds(50, 50, 30,30);  	 
+		 JCheckBox requestBoxW = new JCheckBox("Wendsday");  
+		 requestBoxW.setBounds(50, 50, 30,30);   
+		 JCheckBox requestBoxR = new JCheckBox("Thursday");  
+		 requestBoxR.setBounds(50, 50, 30,30);   		 
+		 JCheckBox requestBoxF = new JCheckBox("Friday");  
+		 requestBoxF.setBounds(50, 50, 30,30);  	 
+		 JCheckBox requestBoxS = new JCheckBox("Saturday");  
+		 requestBoxS.setBounds(50, 50, 30,30);   		 
+		 JCheckBox requestBoxG = new JCheckBox("Sunday");  
+		 requestBoxG.setBounds(50, 50, 30,30);  
+		 JCheckBox scheduleBoxM = new JCheckBox("Monday");  
+		 scheduleBoxM.setBounds(50, 50, 30,30);  
+		 JCheckBox scheduleBoxT = new JCheckBox("Tuesday");  
+		 scheduleBoxT.setBounds(50, 50, 30,30);		 
+		 JCheckBox scheduleBoxW = new JCheckBox("Wendsday");  
+		 scheduleBoxW.setBounds(50, 50, 30,30);
+		 JCheckBox scheduleBoxR = new JCheckBox("Thursday");  
+		 scheduleBoxR.setBounds(50, 50, 30,30);	 
+		 JCheckBox scheduleBoxF = new JCheckBox("Friday");  
+		 scheduleBoxF.setBounds(50, 50, 30,30);		 
+		 JCheckBox scheduleBoxS = new JCheckBox("Saturday");  
+		 scheduleBoxS.setBounds(50, 50, 30,30);		 
+		 JCheckBox scheduleBoxG = new JCheckBox("Sunday");  
+		 scheduleBoxG.setBounds(50, 50, 30,30);
+		 
+		 
+		 
+        
+        
+        
+        
+		
+		
         //Build all buttons with listeners.    
-		JButton submit = new JButton("Submit Request");
-		submit.addActionListener( new ActionListener() {
+		JButton requestSubmit = new JButton("Submit Request");
+		requestSubmit.addActionListener( new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e)  {
 		    	SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm a");
-		    	String startString = DATE_FORMAT.format((startSpinner.getValue()));
-		    	String endString = DATE_FORMAT.format((endSpinner.getValue()));
-		    	String today = requestDatePicker.getJFormattedTextField().getText();
-		    	JOptionPane.showMessageDialog(null, "Booked, Starting: " + startString + " Ending: " + endString + " In " + roomBox.getSelectedItem() , "TO-DO message box", JOptionPane.INFORMATION_MESSAGE);
+		    	String startString = DATE_FORMAT.format((requestStartSpinner.getValue()));
+		    	String endString = DATE_FORMAT.format((requestEndSpinner.getValue()));
+		    	JOptionPane.showMessageDialog(null, "Booked, Starting: " + startString + " Ending: " + endString + " In " + requestRoomBox.getSelectedItem() , "TO-DO message box", JOptionPane.INFORMATION_MESSAGE);
 		    }
 		});
-	
-		JButton cancle = new JButton("Cancle Request");
-		cancle.addActionListener( new ActionListener() {
+		
+		JButton requestClear = new JButton("clear");
+		requestClear.addActionListener( new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e)  {
 		    	JOptionPane.showMessageDialog(null, "To Do");
 		    }
 		});
 		
-		JButton batch = new JButton("Batch Request");
-		batch.addActionListener( new ActionListener() {
+		JButton requestAdd = new JButton("add Requests");
+		requestClear.addActionListener( new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e)  {
 		    	JOptionPane.showMessageDialog(null, "To Do");
 		    }
 		});
+			
 		
-		
-		JButton blackOutButton = new JButton("Black Out");
-		blackOutButton.addActionListener( new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e)  {
-		    	JOptionPane.showMessageDialog(null, "To Do");
-		    }
-		});
-		
-		JButton approveRequest = new JButton("Approve Request");
-		approveRequest.addActionListener( new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e)  {
-		    	JOptionPane.showMessageDialog(null, "To Do");
-		    }
-		});
-		
-		JButton rejectRequest = new JButton("Reject Request");
-		rejectRequest.addActionListener( new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e)  {
-		    	JOptionPane.showMessageDialog(null, "To Do");
-		    }
-		});
-		
-		JButton changeScheduleButton = new JButton("Batch Approve");
-		changeScheduleButton.addActionListener( new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e)  {
-		    	JOptionPane.showMessageDialog(null, "To Do");
-		    }
-		});
-		
-		
-		tabWrapperPane.add(approvalWrapperPane, "Send Request");
-		tabWrapperPane.add(requestWrapperPane, "Approve Requests");
-		tabWrapperPane.add(scheduleWrapperPane, "Scheduler");
 
+		JButton noConflictApproveRequest = new JButton("Approve Request");
+		noConflictApproveRequest.addActionListener( new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e)  {
+		    	JOptionPane.showMessageDialog(null, "To Do");
+		    }
+		});
+		
+		JButton noConflictRejectRequest = new JButton("Reject Request");
+		noConflictRejectRequest.addActionListener( new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e)  {
+		    	JOptionPane.showMessageDialog(null, "To Do");
+		    }
+		});
+		
+		
+
+		JButton conflictApproveRequest = new JButton("Approve Request");
+		conflictApproveRequest.addActionListener( new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e)  {
+		    	JOptionPane.showMessageDialog(null, "To Do");
+		    }
+		});
+		
+		JButton conflictRejectRequest = new JButton("Auto Resolve Conflicts");
+		conflictRejectRequest.addActionListener( new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e)  {
+		    	JOptionPane.showMessageDialog(null, "To Do");
+		    }
+		});
+		
+		JButton conflictResolve = new JButton("Reject Request");
+		conflictResolve.addActionListener( new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e)  {
+		    	JOptionPane.showMessageDialog(null, "To Do");
+		    }
+		});
 
 		
-		//Build Request and Admin button pane's 
-		requestButtonPane.add(startL);
-		requestButtonPane.add(startSpinner);
-		requestButtonPane.add(endL);
-		requestButtonPane.add(endSpinner);
-		requestButtonPane.add(roomBox);	
-		requestButtonPane.add(cancle);
-		requestButtonPane.add(submit);		
-		requestButtonPane.add(batchBox);
-		requestButtonPane.add(userBox);
-		requestButtonPane.add(requestDatePicker);		
-		adminButtonPane.add(rejectRequest);	
-		adminButtonPane.add(approveRequest);
-		adminButtonPane.add(blackOutButton);
-		adminButtonPane.add(changeScheduleButton);
-	    approvalToolBarPane.add(requestButtonPane, BorderLayout.SOUTH);
+		JButton scheduleSubmit = new JButton("Update Schedule");
+		scheduleSubmit.addActionListener( new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e)  {
+		    	JOptionPane.showMessageDialog(null, "To Do");
+		    }
+		});
+
+		tabWrapperPane.setPreferredSize(new Dimension(350, 550));
 		
-	
-	
+		
 		// Set all the layouts and add all the elements to the appropriate frames.
-		calenderPane.setPreferredSize(new Dimension(600, 410));
+		calenderPane.setPreferredSize(new Dimension(800, 410));
 		calenderPane.setRowHeaderView(rowTable);
 		calenderPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, rowTable.getTableHeader());
 		calenderToolBarPane.add(calenderDatePicker, BorderLayout.LINE_START);
-		tabWrapperPane.setPreferredSize(new Dimension(350, 500));
-		requestButtonPane.setPreferredSize(new Dimension(350, 125));
-		adminButtonPane.setPreferredSize(new Dimension(350, 75));
-		requestWrapperPane.add(requestPane, BorderLayout.NORTH);
-		requestWrapperPane.add(requestToolBarPane, BorderLayout.SOUTH);
 		calenderWrapperPane.add(calenderToolBarPane, BorderLayout.NORTH);
-		calenderWrapperPane.add(calenderPane, BorderLayout.LINE_START);
+		calenderWrapperPane.add(calenderPane, BorderLayout.LINE_START);	
 		
+		//Add elements to booking request pane.
+		requestCheckPane.add(requestBoxM);
+		requestCheckPane.add(requestBoxT);
+		requestCheckPane.add(requestBoxW);
+		requestCheckPane.add(requestBoxR);
+		requestCheckPane.add(requestBoxF);
+		requestCheckPane.add(requestBoxS);
+		requestCheckPane.add(requestBoxG);		
+
+		requestCheckPane.setPreferredSize(new Dimension(350, 50));
+		requestButtonPane.add(startL);
+		requestButtonPane.add(requestStartSpinner);
+		requestButtonPane.add(endL);
+		requestButtonPane.add(requestEndSpinner);
+		requestButtonPane.add(requestBatchBox);
+		requestButtonPane.add(requestRoomBox);
+		requestButtonPane.add(requestUsersBox);
+		requestButtonPane.add(requestDatePicker);
+
+		requestButtonPane.add(requestAdd);
+		requestButtonPane.add(requestClear);
+		requestButtonPane.add(requestSubmit);
+
+		requestButtonPane.setPreferredSize(new Dimension(350, 200));
+		requestButtonWrapperPane.add(requestCheckPane, BorderLayout.NORTH);
+		requestButtonWrapperPane.add(requestButtonPane, BorderLayout.SOUTH);	
+		requestButtonWrapperPane.setPreferredSize(new Dimension(350, 200));
+		requestTablePane.setPreferredSize(new Dimension(350, 300));
+		requestWrapperPane.add(requestTablePane, BorderLayout.NORTH);
+		requestWrapperPane.add(requestButtonWrapperPane, BorderLayout.SOUTH);
+		
+		
+		
+		
+		
+		
+		scheduleCheckPane.add(scheduleBoxM);
+		scheduleCheckPane.add(scheduleBoxT);
+		scheduleCheckPane.add(scheduleBoxW);
+		scheduleCheckPane.add(scheduleBoxR);
+		scheduleCheckPane.add(scheduleBoxF);
+		scheduleCheckPane.add(scheduleBoxS);
+		scheduleCheckPane.add(scheduleBoxG);
+		scheduleCheckPane.setPreferredSize(new Dimension(350, 150));
+		scheduleButtonPane.add(scheduleBatchBox);
+		scheduleButtonPane.add(scheduleStatusBox);
+		scheduleButtonPane.add(scheduleRoomBox);		
+		scheduleButtonPane.add(scheduleSubmit);
+		scheduleButtonPane.setPreferredSize(new Dimension(350, 300));
+		scheduleWrapperPane.add(scheduleCheckPane, BorderLayout.NORTH);
+		scheduleWrapperPane.add(scheduleButtonPane, BorderLayout.SOUTH);
+
+		
+		
+		//Add elements to no conflict request pane.
+		noConflictButtonPane.add(noConflictRejectRequest);
+		noConflictButtonPane.add(noConflictApproveRequest);
+		noConflictButtonPane.setPreferredSize(new Dimension(350, 100));
+		noConflictTablePane.setPreferredSize(new Dimension(350, 400));
+		noConflictWrapperPane.add(noConflictButtonPane,  BorderLayout.SOUTH);
+		noConflictWrapperPane.add(noConflictTablePane,  BorderLayout.NORTH);
+		
+		//Add elements to conflict request frame.
+		conflictButtonPane.add(conflictResolve);
+		conflictButtonPane.add(conflictRejectRequest);
+		conflictButtonPane.add(conflictApproveRequest);		
+		conflictButtonPane.setPreferredSize(new Dimension(350, 100));
+		conflictTablePane.setPreferredSize(new Dimension(350, 400));
+		conflictWrapperPane.add(conflictButtonPane,  BorderLayout.SOUTH);
+		conflictWrapperPane.add(conflictTablePane,  BorderLayout.NORTH);
+
+				
+		// Add elements to table wrapper frame.
+		tabWrapperPane.add(requestWrapperPane, "Request Booking");
+		tabWrapperPane.add(noConflictWrapperPane, "Apporve Bookings");
+		tabWrapperPane.add(conflictWrapperPane, "Conflicted Bookings");
+		tabWrapperPane.add(scheduleWrapperPane, "Scheduler");
+
 		
 		// Add wrapper to the main pane. 
 		mainPane.add(calenderWrapperPane, BorderLayout.LINE_START);
