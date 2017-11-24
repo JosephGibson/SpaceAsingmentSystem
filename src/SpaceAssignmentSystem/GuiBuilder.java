@@ -55,6 +55,7 @@ public class GuiBuilder extends JPanel {
 	        }
 		calTable.setEnabled(false);
 		JTable rowTable = new RowNumberTable(calTable);
+		rowTable.setEnabled(false);
 		
 		// Create all other swing elements.
 		JLabel startL = new JLabel("Start Time:");
@@ -148,13 +149,13 @@ public class GuiBuilder extends JPanel {
 		MySpinnerDateModel  scheduleEndSpinnerModel = new MySpinnerDateModel (scheduleEndDate, null, null, Calendar.MINUTE);
 		scheduleEndSpinnerModel.setIncrement(15);
         JSpinner scheduleStartSpinner = new JSpinner(scheduleStartSpinnerModel);
-        JSpinner scheduletEndSpinner = new JSpinner(scheduleStartSpinnerModel);
+        JSpinner scheduleEndSpinner = new JSpinner(scheduleEndSpinnerModel);
         JSpinner.DateEditor sse = new JSpinner.DateEditor(scheduleStartSpinner, "hh:mm a");
         sse.getComponent(0).setFocusable(false);
-        JSpinner.DateEditor see = new JSpinner.DateEditor(scheduletEndSpinner, "hh:mm a");
+        JSpinner.DateEditor see = new JSpinner.DateEditor(scheduleEndSpinner, "hh:mm a");
         see.getComponent(0).setFocusable(false);
         scheduleStartSpinner.setEditor(sse);
-        requestEndSpinner.setEditor(see);
+        scheduleEndSpinner.setEditor(see);
         
         
         
@@ -342,7 +343,11 @@ public class GuiBuilder extends JPanel {
 		scheduleCheckPane.setPreferredSize(new Dimension(350, 150));
 		scheduleButtonPane.add(scheduleBatchBox);
 		scheduleButtonPane.add(scheduleStatusBox);
-		scheduleButtonPane.add(scheduleRoomBox);		
+		scheduleButtonPane.add(scheduleRoomBox);
+		scheduleButtonPane.add(startL);
+		scheduleButtonPane.add(scheduleStartSpinner);
+		scheduleButtonPane.add(endL);
+		scheduleButtonPane.add(scheduleEndSpinner);
 		scheduleButtonPane.add(scheduleSubmit);
 		scheduleButtonPane.setPreferredSize(new Dimension(350, 300));
 		scheduleWrapperPane.add(scheduleCheckPane, BorderLayout.NORTH);
