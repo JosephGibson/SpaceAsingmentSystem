@@ -3,18 +3,15 @@ The Space Assignment System
 
 Iteration 1.0 
 
-Key features that still need to be developed: 
+Key features that still need to be developed:  v2.0
 
-    • Submit a request for a given time period. (User)
-    • Approve / deny a valid request. (Admin)
-        ◦ Check that a request is Valid (System)
-        ◦ Notify uses on cancellation, rejection or approval.
-    • Cancel a room request that is valid (User)
+  
+    • Cancel a room request that is valid 
         ◦ Remove the request from the pending approval requests. 
-    • Black out a given room for a given time frame. (Admin)
-        ◦ Black out a room on a set schedule (Admin)
-        ◦ Black out a room for a single time slot. (Admin)
-    • Modify the Calendar (Admin) 
+    • Black out a given room for a given time frame. 
+        ◦ Black out a room on a set schedule
+        ◦ Black out a room for a single time slot. 
+    • Modify the Calendar 
         ◦ Add new rooms
         ◦ Change valid booking times. 
       
@@ -28,6 +25,10 @@ Change log :
  
 version 1.0:
 
-	   	• Initial commit of project to git-hub
+	   • Initial commit of project to git-hub
     	• Excitable architecture built. 
       
+version 2.0:
+
+	   • Rebuilt UI with one window restriction.
+	   

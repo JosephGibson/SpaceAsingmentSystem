@@ -1,27 +1,86 @@
 package SpaceAssignmentSystem;
 
 import java.io.*;
+import java.util.Stack;
+import java.util.Observable;
 
-public class Scheduler {
+public class Scheduler extends Observable{
 	private Room[] rooms;
-	public String[] names = {"room1", "room2", "room3", "room4", "room5"};
+	private String[] names = {"room1", "room2", "room3", "room4", "room5"};
 	
 	public Scheduler(){ 
-		rooms = new Room[5];
+		rooms = new Room[names.length];
 		for (String s : names) {
-			System.out.println(s);
 			build(s);
 		}
 	}
 	
-	public boolean addBooking(Request r) {
-		int i = pick(r.room);
-		return rooms[i].addBooking(r.booking);
+	public Scheduler(String[] nms){ 
+		names = nms;
+		rooms = new Room[names.length];
+		for (String s : names) {
+			build(s);
+		}
+	}
+	
+	public RequestHandler createRequestHandler() {
+		return new RequestHandler(this);
+	}
+	
+	public Room getRoom(String s) { 
+		return rooms[pick(s)];
+	}
+	
+	public String[] roomNames() {
+		return names;
+	}
+	
+	public void approveRequest(Request[] requests) throws SchedulerException {
+		Stack<Request> changes = new Stack<Request>();
+		for(Request r : requests) {
+			Room room = rooms[pick(r.room)];
+			if(room.bookings.isEmpty()) {
+				changes.push(r);
+				room.bookings.add(r.booking);
+			}
+			for(Booking b : room.bookings) {
+				if( b.start.after(r.booking.start) && b.start.before(r.booking.end) ) {
+					throw new SchedulerException();
+				}
+				if( b.end.after(r.booking.start) && b.end.before(r.booking.end) ) {
+					throw new SchedulerException();
+				}
+				else{
+					changes.push(r);
+					room.bookings.add(r.booking);
+				}
+			}
+		}
+		notifyObservers(changes.iterator());
+	}	
+	
+	public void approveRequest(Request r) throws SchedulerException {
+		Room room = rooms[pick(r.room)];
+		if(room.bookings.isEmpty()) {
+			room.bookings.add(r.booking) ;
+			return;
+		}
+		for(Booking b : room.bookings) {
+			if( b.start.after(r.booking.start) && b.start.before(r.booking.end) ) {
+				throw new SchedulerException();
+			}
+			if( b.end.after(r.booking.start) && b.end.before(r.booking.end) ) {
+				throw new SchedulerException();
+			}
+			else{
+				room.bookings.add(r.booking);
+			}
+		}
+		notifyObservers(r);
 	}
 	
 	private void build(String s) {
 		int i = pick(s);
-		System.out.println(i);
 		try {
 			FileInputStream fileIn = new FileInputStream(s + ".ser");
 			ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -30,33 +89,26 @@ public class Scheduler {
 			in.close();
 		}
 		catch(Exception e) {
-			rooms[i] = new Room();
+			rooms[i] = new Room(s);
 		}
 	}
 	
-	private boolean blackOut(Request r) {
-		return false;
-		//to do
+	private int pick(String s1) {
+		int i = 0;
+		for(String s2 : names) {
+			if( s1.equals(s2) ) {
+				return i;
+			}
+			else {
+				i++;
+			}
+		}
+		return -1;
+	}
+
+	public void notifyObservers(Object o) {
+		setChanged();
+		super.notifyObservers(o);
 	}
 	
-	private int pick(String s) {
-		if( s.equals("room1") ) {
-			return 0;
-		}
-		else if( s.equals("room2") ) {
-			return 1;
-		}
-		else if( s.equals("room3") ) {
-			return 2;
-		}
-		else if( s.equals("room4") ) {
-			return 3;
-		}
-		else if( s.equals("room5") ) {
-			return 4;
-		}
-		else{
-			return -1;			
-		}
-	}
 }

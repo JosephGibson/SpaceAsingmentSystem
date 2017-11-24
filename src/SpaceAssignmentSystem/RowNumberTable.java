@@ -3,6 +3,9 @@ package SpaceAssignmentSystem;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -27,7 +30,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 		addColumn(column);
 		column.setCellRenderer(new RowNumberRenderer());
 
-		getColumnModel().getColumn(0).setPreferredWidth(50);
+		getColumnModel().getColumn(0).setPreferredWidth(75);
 		setPreferredScrollableViewportSize(getPreferredSize());
 	}
 	@Override
@@ -148,10 +151,23 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 				setFont(getFont().deriveFont(Font.BOLD));
 			}
 
-			setText((value == null) ? "" : value.toString() + ":00");
+			setText((value == null) ? "" : setTimes(value.toString()));
 			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 
 			return this;
+		}
+		public String setTimes(Object value) {
+			int i = Integer.valueOf((String) value) - 1;
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY,00);
+			cal.set(Calendar.MINUTE,00);
+			cal.set(Calendar.SECOND,0);
+			cal.set(Calendar.MILLISECOND,0);
+			cal.add(Calendar.MINUTE, 15 * i);
+			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm a");
+			String temp =  DATE_FORMAT.format((cal.getTime()));
+			return temp;
+			
 		}
 	}
 }

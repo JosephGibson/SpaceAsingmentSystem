@@ -1,13 +1,19 @@
 package SpaceAssignmentSystem;
 
-import SpaceAssignmentSystem.clientWindow;
+
 
 public class SpaceAssignmentSystem {
 	public static void main(String[] args) {
 		// scheduler the rendering event.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				clientWindow.renderClientWindow();
+				try {
+					GuiBuilder.renderGUI();
+				} catch (SchedulerException e) {
+					// TODO Auto-generated catch block
+					System.out.println("Whoops bug splat");
+					e.printStackTrace();
+				}
 			}
 		});
 	}
