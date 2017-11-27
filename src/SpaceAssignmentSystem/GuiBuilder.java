@@ -11,25 +11,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
 
 // Main GUI class, handles building SWING elements for rendering.
-public class GuiBuilder extends JPanel {
+public class GuiBuilder extends JPanel implements Observer{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public GuiBuilder() throws SchedulerException {
+	public GuiBuilder(RequestHandler) throws SchedulerException {
 		// Load Dummy data for rapid-prototyping
 		System.out.println();
 		
 		DateSA d = new DateSA(12, 1);
-
+		
+		
 	
 		
-		String[] calColumnNames = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
-
+		String[] roomList = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
+		String[] calColumnNames = { "Monday", "Tuesday", "Wendsday", "Thursday", "Friday", "Saturday", "Sunday" };
 		Object[][] calData = buildDay();
 	
 		String[] batchList = {"Daily", "Weekly", "Monthly", "Yearly"};
@@ -160,10 +163,10 @@ public class GuiBuilder extends JPanel {
         
         
         
-		JComboBox<String> requestRoomBox = new JComboBox<String>(calColumnNames);
+		JComboBox<String> requestRoomBox = new JComboBox<String>(roomList);
 		JComboBox<String> requestBatchBox = new JComboBox<String>(batchList);
 		JComboBox<String> requestUsersBox = new JComboBox<String>(userList);
-		JComboBox<String> scheduleRoomBox = new JComboBox<String>(calColumnNames);
+		JComboBox<String> scheduleRoomBox = new JComboBox<String>(roomList);
 		JComboBox<String> scheduleBatchBox = new JComboBox<String>(batchList);
 		JComboBox<String> scheduleStatusBox = new JComboBox<String>(statusList);
 		
@@ -410,6 +413,12 @@ public class GuiBuilder extends JPanel {
 			}
 		}
 		return data;
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

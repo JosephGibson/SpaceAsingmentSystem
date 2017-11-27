@@ -10,10 +10,10 @@ public class RequestHandler {
 	private Scheduler schedule;
 	private ArrayList<Request> pending;
 	private Queue<Request> denied;
+	//
 	
 	public RequestHandler(Scheduler s) {
-		schedule = s;
-		pending = new ArrayList<Request>();
+		schedule = s; 
 		denied = new ArrayBlockingQueue<Request>(30);
 	}
 	
@@ -83,6 +83,7 @@ public class RequestHandler {
 		}
 		return m;	
 	}
+	// Send Resut => TODO ; Delete requests via priorty, check valid request.
 	
 	public void newRequest(Request r) {
 		pending.add(r);

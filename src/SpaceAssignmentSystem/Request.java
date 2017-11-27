@@ -3,6 +3,8 @@ package SpaceAssignmentSystem;
 public class Request {
 	public String room;
 	public Booking booking;
+	// int priority 
+	
 	
 	public Request(DateSA start, DateSA end, String owner, String r) {
 		booking = new Booking(start, end, owner);

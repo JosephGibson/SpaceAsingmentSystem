@@ -7,7 +7,7 @@ import java.util.Observable;
 public class Scheduler extends Observable{
 	private Room[] rooms;
 	private String[] names = {"room1", "room2", "room3", "room4", "room5"};
-	
+	//Private list of closed requests.	
 	public Scheduler(){ 
 		rooms = new Room[names.length];
 		for (String s : names) {
