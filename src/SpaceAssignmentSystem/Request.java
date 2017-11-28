@@ -3,12 +3,13 @@ package SpaceAssignmentSystem;
 public class Request {
 	public String room;
 	public Booking booking;
-	// int priority 
+	public int priority;
 	
 	
-	public Request(DateSA start, DateSA end, String owner, String r) {
-		booking = new Booking(start, end, owner);
+	public Request(String r, char se, int[] days,  int s, int e, String o, int p) {
 		room = r;
+		booking = new Booking(se, days, s, e, o);
+		priority = p;
 	}
 	
 }

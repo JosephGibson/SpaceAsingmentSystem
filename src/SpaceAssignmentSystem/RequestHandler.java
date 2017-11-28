@@ -1,8 +1,6 @@
 package SpaceAssignmentSystem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -17,76 +15,55 @@ public class RequestHandler {
 		denied = new ArrayBlockingQueue<Request>(30);
 	}
 	
-	public Map<String, Booking[]> getFullDay(DateSA d) {
-		Map<String, Booking[]> m = new HashMap<String, Booking[]>();
-		for(String s : schedule.roomNames()) {
-			ArrayList<Booking> bookings = new ArrayList<Booking>();
-			for(Booking b : schedule.getRoom(s).bookings) {
-				if(b.start.equals(d)) {
-					bookings.add(b);
-				}
+	public Booking[][] getWeek(String r) {
+		ArrayList<Booking> sun = new ArrayList<Booking>();
+		ArrayList<Booking> mon = new ArrayList<Booking>();
+		ArrayList<Booking> tues = new ArrayList<Booking>();
+		ArrayList<Booking> wednes = new ArrayList<Booking>();
+		ArrayList<Booking> thrus = new ArrayList<Booking>();
+		ArrayList<Booking> fri = new ArrayList<Booking>();
+		ArrayList<Booking> sat = new ArrayList<Booking>();
+		int[] counts = new int[7];
+		for(Booking b : schedule.getRoom(r).bookings) {
+			for(int i : b.days) {
+				if(i == 0) { sun.add(b); counts[0]++; }
+				else if(i == 1) { mon.add(b); counts[1]++; }
+				else if(i == 2) { tues.add(b); counts[2]++; }
+				else if(i == 3) { wednes.add(b); counts[3]++; }
+				else if(i == 4) { thrus.add(b); counts[4]++; }
+				else if(i == 5) { fri.add(b); counts[5]++; }
+				else if(i == 6) { sat.add(b); counts[6]++; }
 			}
-			Booking[] bookingsArray = new Booking[bookings.size()];
-			m.put(s, bookings.toArray(bookingsArray));
 		}
-		return m;
+		Booking[][] week =  {(Booking[])sun.toArray(), (Booking[])mon.toArray(), (Booking[])tues.toArray(), (Booking[])wednes.toArray(), (Booking[])thrus.toArray(), (Booking[])fri.toArray(), (Booking[])sat.toArray()};
+		return week;
 	}
 	
-	public Map<String, Booking[]> getNoConflict(DateSA d) {
-		Map<String, Booking[]> m = getFullDay(d);
-		ArrayList<Booking> noConflict = new ArrayList<Booking>();
-		for(String s : m.keySet() ) {
-			Booking[] conflict = m.get(s);
-			noConflict.clear();
-			for(Booking b1 : conflict) {
-				for(Booking b2 : noConflict) {
-					if( b1.start.after(b2.start) && b1.start.before(b2.end) ) {
-						noConflict.remove(b2);
-					}
-					if( b1.end.after(b2.start) && b1.end.before(b2.end) ) {
-						noConflict.remove(b2);
-					}
-					else {
-						noConflict.add(b1);
-					}
-				}
-			}
-			m.put(s, (Booking[]) noConflict.toArray());
+	public boolean validate(Request request){
+		for(Booking b : schedule.getRoom(request.room).bookings ) {
+			if(b.overlap(request.booking)) { return false; }
 		}
-		return m;
+		for(Request r : pending) {
+			if(r.booking.overlap(request.booking) && r.priority > request.priority) {
+				return false;
+			}
+		}
+		for(Request r : schedule.closed) {
+			if(r.room.equals(request.room) && r.booking.overlap(request.booking)) { return false; }
+		}
+		for(Request r : pending) {
+			if(r.booking.overlap(request.booking)) {
+				pending.remove(r);
+				denied.add(r);
+			}
+		}
+		return true;
 	}
 	
-	public Map<String, Booking[]> getConflict(DateSA d){
-		Map<String, Booking[]> m = getFullDay(d);
-		ArrayList<Booking> noConflict = new ArrayList<Booking>();
-		for(String s : m.keySet() ) {
-			ArrayList<Booking> conflict = new ArrayList<Booking>();
-			for(Booking b : m.get(s)) {
-				conflict.add(b);
-			}
-			noConflict.clear();
-			for(Booking b1 : conflict) {
-				for(Booking b2 : noConflict) {
-					if( b1.start.after(b2.start) && b1.start.before(b2.end) ) {
-						noConflict.remove(b2);
-					}
-					if( b1.end.after(b2.start) && b1.end.before(b2.end) ) {
-						noConflict.remove(b2);
-					}
-					else {
-						noConflict.add(b1);
-					}
-				}
-			}
-			conflict.removeAll(noConflict);
-			m.put(s, (Booking[]) conflict.toArray());
+	public void sendRequest(Request r) {
+		if(validate(r)) {
+			pending.add(r);
 		}
-		return m;	
-	}
-	// Send Resut => TODO ; Delete requests via priorty, check valid request.
-	
-	public void newRequest(Request r) {
-		pending.add(r);
 	}
 	
 	public void denyRequest(Request r) {
@@ -94,12 +71,17 @@ public class RequestHandler {
 		denied.add(r);
 	}
 	
-	public void approveRequest(Request[] requests) throws SchedulerException {
-		schedule.approveRequest(requests);
+	public void approveRequest(Request r) throws SchedulerException {
+		if(validate(r)) {
+			schedule.approveRequest(r);
+		}
+		else {
+			throw new SchedulerException();
+		}
 	}
 	
-	public void approveRequest(Request r) throws SchedulerException {
-		schedule.approveRequest(r);
+	public void close(Request r) {
+		schedule.close(r);
 	}
 	
 }
