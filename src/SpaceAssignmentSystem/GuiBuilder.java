@@ -100,11 +100,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		JScrollPane noConflictTablePane = new JScrollPane(noConflictTable);
 		JPanel noConflictButtonPane = new JPanel();
 
-		JPanel conflictWrapperPane = new JPanel(new BorderLayout());
-		JScrollPane conflictTablePane = new JScrollPane(conflictTable);
-		JPanel conflictButtonPane = new JPanel();
 
-	
 
 		// Build the JSpinner to enter in time of day for booking, both start and end
 		// for both scheduler and request.
@@ -608,19 +604,9 @@ public class GuiBuilder extends JPanel implements Observer {
 		noConflictWrapperPane.add(noConflictButtonPane, BorderLayout.SOUTH);
 		noConflictWrapperPane.add(noConflictTablePane, BorderLayout.NORTH);
 
-		// Add elements to conflict request frame.
-		conflictButtonPane.add(conflictResolve);
-		conflictButtonPane.add(conflictRejectRequest);
-		conflictButtonPane.add(conflictApproveRequest);
-		conflictButtonPane.setPreferredSize(new Dimension(500, 100));
-		conflictTablePane.setPreferredSize(new Dimension(500, 400));
-		conflictWrapperPane.add(conflictButtonPane, BorderLayout.SOUTH);
-		conflictWrapperPane.add(conflictTablePane, BorderLayout.NORTH);
-
 		// Add elements to table wrapper frame.
 		tabWrapperPane.add(requestWrapperPane, "Request Booking");
-		tabWrapperPane.add(noConflictWrapperPane, "Non-Conflicted");
-		tabWrapperPane.add(conflictWrapperPane, "Conflicted");
+		tabWrapperPane.add(noConflictWrapperPane, "Pending Requests");
 		tabWrapperPane.add(scheduleWrapperPane, "Scheduler");
 
 		// Add wrapper to the main pane.

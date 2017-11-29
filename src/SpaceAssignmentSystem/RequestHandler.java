@@ -52,21 +52,16 @@ public class RequestHandler {
 				if(r.booking.overlap(request.booking) && r.priority >= request.priority) {
 					return false;
 				}
-			}			
-
-			while (pending.iterator().hasNext()) {
-				Request r = pending.iterator().next();
-				if(r.booking.overlap(request.booking)) {
-					pending.remove(r);
-					return false;
-				}
-				else if (!r.booking.overlap(request.booking)) {
-					return true;
-				}
+			}		
+			for(Request r : schedule.closed) {
+					if(r.room.equals(request.room) && r.booking.overlap(request.booking)) { return false; }
 			}
 				
 			return true;
 	
+	}
+	public void close(Request r) {
+			schedule.close(r);
 	}
 	public ArrayList<Request> getPending(){
 		return pending;

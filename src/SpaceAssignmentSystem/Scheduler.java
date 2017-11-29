@@ -6,6 +6,7 @@ import java.util.Observable;
 
 public class Scheduler extends Observable{
 	private Room[] rooms;
+	public ArrayList<Request> closed = new <Request> ArrayList();
 	private static String[] names = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
 
 	public Scheduler(){ 
@@ -13,7 +14,7 @@ public class Scheduler extends Observable{
 		for (String s : names) {
 			build(s);
 		}
-
+		closed = new ArrayList<Request>();
 	}
 	
 	public Scheduler(String[] nms){ 
@@ -22,6 +23,8 @@ public class Scheduler extends Observable{
 		for (String s : names) {
 			build(s);
 		}
+		closed = new ArrayList<Request>();
+
 
 	}
 	
@@ -35,6 +38,10 @@ public class Scheduler extends Observable{
 	
 	public static String[] roomNames() {
 		return names;
+	}
+	
+	public void close(Request r) {
+			closed.add(r);
 	}
 
 	
