@@ -30,7 +30,7 @@ public class GuiBuilder extends JPanel implements Observer {
 	SimpleDateFormat DATE_FORMAT_TIME_ENCODED = new SimpleDateFormat("HHmm");
 	SimpleDateFormat DATE_FORMAT_WEEK = new SimpleDateFormat("w");
 	String[] userList = { "John Doe", "Mr. Smith", "Mrs. Smith", "Principle Skinner", "Alen Turing", "Java John" };
-	static String[] roomList = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
+	static String[] roomList = Scheduler.roomNames();
 	String[] batchList = { "Fall Semester", "Winter Semester", "Summer Semester" };
 	Object[][] noConflictData = buildNoConflictData();
 	Object[][] requestData = buildBlankRequest();
@@ -422,7 +422,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		conflictRejectRequest.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "To Do");
+				 buildCalenderData(RH);
 			}
 		});
 
@@ -607,15 +607,43 @@ public class GuiBuilder extends JPanel implements Observer {
 		return noConflictData;
 	
 	}
-	
-	
+	public int getTimeColum(int i) {
+		int x1 =0, x2 =0 ,x3 =0 ,x4 =0;
+		while (i > 0) {
+		    System.out.println( i % 10);
+		    x1 = i % 10;
+		    i = i / 10;
+		    System.out.println( i % 10);
+		    x2 = i % 10;
+		    i = i / 10;
+		    System.out.println( i % 10);
+		    x3 = i % 10;
+		    i = i / 10;
+		    System.out.println( i % 10);
+		    x4 = i % 10;
+		    i = i / 10;		    
+		}
+		int result = ((x4*10)+x3)*60 + x1 + 10*x2;
+		return result / 15;
+	}
+
 	public  Object[][] buildCalenderData(RequestHandler RH){
-			Booking[][] b = RH.getWeek(roomList[1]);
-			System.out.println(RH.getWeek(roomList[1]));
-			System.out.println(RH.getWeek(roomList[1]).getClass());
-			System.out.println(b.length);
-			Booking[] g = b[0];
-			System.out.println(g[0].getOwner());
+		
+	
+
+
+
+		
+		
+
+	//	Booking[][] week = RH.getWeek(roomList[0]);
+	//	for (int i = 0; i < week.length; i++) {
+	//		Booking[] day = week[i];
+	//		for(int j=0; j<day.length; j++) {
+	//			System.out.println(day[j].owner);
+	//		}
+	//	}
+			
 			
 			
 			

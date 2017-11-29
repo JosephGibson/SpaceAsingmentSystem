@@ -6,7 +6,7 @@ import java.util.Observable;
 
 public class Scheduler extends Observable{
 	private Room[] rooms;
-	private String[] names = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
+	private static String[] names = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
 	public ArrayList<Request> closed = new <Request> ArrayList();
 	
 	public Scheduler(){ 
@@ -34,7 +34,7 @@ public class Scheduler extends Observable{
 		return rooms[pick(s)];
 	}
 	
-	public String[] roomNames() {
+	public static String[] roomNames() {
 		return names;
 	}
 	

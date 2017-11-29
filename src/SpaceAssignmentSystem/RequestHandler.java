@@ -12,12 +12,10 @@ public class RequestHandler {
 
 	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
 	private ArrayList<Request> pending  = new <Request>ArrayList();;
-	private Queue<Request> denied;
-	
+
 	
 	public RequestHandler(Scheduler s) {
 		schedule = s; 
-		denied = new ArrayBlockingQueue<Request>(30);
 	}
 	
 	public Booking[][] getWeek(String r) {
@@ -28,7 +26,7 @@ public class RequestHandler {
 		ArrayList<Booking> thrus = new ArrayList<Booking>();
 		ArrayList<Booking> fri = new ArrayList<Booking>();
 		ArrayList<Booking> sat = new ArrayList<Booking>();
-		int[] counts = new int[6];
+		int[] counts = new int[7];
 		for(Booking b : schedule.getRoom(r).bookings) {
 			for(int i : b.days) {
 				if(i == 0) { sun.add(b); counts[0]++; }
@@ -48,7 +46,7 @@ public class RequestHandler {
 				
 			
 			for(Booking b : schedule.getRoom(request.room).bookings ) {
-				if(b.overlap(request.booking)) { System.out.println("already booked"); return false; }
+				if(b.overlap(request.booking)) {return false; }
 			}
 			for(Request r : pending) {
 				if(r.booking.overlap(request.booking) && r.priority >= request.priority) {
@@ -62,7 +60,6 @@ public class RequestHandler {
 			while (pending.iterator().hasNext()) {
 				Request r = pending.iterator().next();
 				if(r.booking.overlap(request.booking)) {
-					System.out.println("overlapping");
 					pending.remove(r);
 					return false;
 				}
@@ -78,17 +75,12 @@ public class RequestHandler {
 		return pending;
 	};
 	public void sendRequest(Request r) {		
-		System.out.println("VALID?" + validate(r));
 		if(validate(r)) {		
-			System.out.println("Size of valids: " + pending.size());
 			pending.add(r);
 		}
 	}
 	
-	public void denyRequest(Request r) {
-		pending.remove(r);
-		denied.add(r);
-	}
+
 	
 	public void removeRequest(Request r) {
 		pending.remove(r);
