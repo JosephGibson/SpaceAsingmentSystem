@@ -21,13 +21,13 @@ public class Booking {
 		for(int i : days) {
 			for(int j : b.days) {
 	
-				if( i == j ) { 
+				if( i == j ) {
 								sharedDay = true; }
 			}
 		}
 		if(!sharedDay) {return false; }
-		else if(startTime > b.startTime && startTime < b.endTime && semeseter == b.semeseter) {return true; }
-		else if(endTime > b.startTime && endTime < b.endTime && semeseter == b.semeseter) {return true; }
+		else if(startTime >= b.startTime && startTime < b.endTime && semeseter == b.semeseter) {return true; }
+		else if(endTime > b.startTime && endTime <= b.endTime && semeseter == b.semeseter) {return true; }
 		else{ return false; }
 	}
 

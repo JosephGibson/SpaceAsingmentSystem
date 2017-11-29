@@ -7,14 +7,13 @@ import java.util.Observable;
 public class Scheduler extends Observable{
 	private Room[] rooms;
 	private static String[] names = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
-	public ArrayList<Request> closed = new <Request> ArrayList();
-	
+
 	public Scheduler(){ 
 		rooms = new Room[names.length];
 		for (String s : names) {
 			build(s);
 		}
-		closed = new ArrayList<Request>();
+
 	}
 	
 	public Scheduler(String[] nms){ 
@@ -23,7 +22,7 @@ public class Scheduler extends Observable{
 		for (String s : names) {
 			build(s);
 		}
-		closed = new ArrayList<Request>();
+
 	}
 	
 	public RequestHandler createRequestHandler() {
@@ -37,10 +36,7 @@ public class Scheduler extends Observable{
 	public static String[] roomNames() {
 		return names;
 	}
-	
-	public void close(Request r) {
-		closed.add(r);
-	}
+
 	
 	public void approveRequest(Request r) throws SchedulerException {
 		int i = pick(r.room);

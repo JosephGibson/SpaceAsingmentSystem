@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.swing.table.DefaultTableCellRenderer;
-import org.jdatepicker.impl.*;
 import SpaceAssignmentSystem.GuiBuilder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,7 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
+
 
 // Main GUI class, handles building SWING elements for rendering.
 public class GuiBuilder extends JPanel implements Observer {
@@ -36,7 +35,7 @@ public class GuiBuilder extends JPanel implements Observer {
 	Object[][] requestData = buildBlankRequest();
 	Object[][] calData = buildDay();
 	String[] statusList = { "Open", "Closed" };
-	
+	String[] weekList = { "Week 1", "Week 2",  "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8", "Week 9", "Week 10",  "Week 11", "Week 12", "Week 13", "Week 14", "Week 15", "Week 16", "Week 17" };
 
 	public GuiBuilder(RequestHandler RH) throws SchedulerException {
 
@@ -84,7 +83,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		JPanel mainPane = new JPanel(new BorderLayout());
 		JTabbedPane tabWrapperPane = new JTabbedPane();
 		JPanel calenderWrapperPane = new JPanel(new BorderLayout());
-		JPanel calenderToolBarPane = new JPanel(new BorderLayout());
+		JPanel calenderToolBarPane = new JPanel(new FlowLayout());
 		JScrollPane calenderPane = new JScrollPane(calTable);
 
 		JPanel requestWrapperPane = new JPanel(new BorderLayout());
@@ -105,19 +104,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		JScrollPane conflictTablePane = new JScrollPane(conflictTable);
 		JPanel conflictButtonPane = new JPanel();
 
-		// Set up parameters and objects for JDatePicker swing elements
-		Date now = Calendar.getInstance().getTime();
-
-		String today = DATE_FORMAT_YEAR.format(now);
-		Properties pS = new Properties();
-		pS.put("text.today", "Today");
-		pS.put("text.day", "Day");
-		pS.put("text.month", "Month");
-		pS.put("text.year", "Year");
-		UtilDateModel model = new UtilDateModel();
-		JDatePanelImpl calenderDatePanel = new JDatePanelImpl(model, pS);
-		JDatePickerImpl calenderDatePicker = new JDatePickerImpl(calenderDatePanel, new DateLabelFormatter());
-		calenderDatePicker.getJFormattedTextField().setText(today);
+	
 
 		// Build the JSpinner to enter in time of day for booking, both start and end
 		// for both scheduler and request.
@@ -166,6 +153,8 @@ public class GuiBuilder extends JPanel implements Observer {
 		JComboBox<String> scheduleBatchBox = new JComboBox<String>(batchList);
 		JComboBox<String> scheduleStatusBox = new JComboBox<String>(statusList);
 		JComboBox<String> calenderRoomBox = new JComboBox<String>(roomList);
+		JComboBox<String> calenderBatchBox = new JComboBox<String>(batchList);
+		JComboBox<String> calenderWeekBox = new JComboBox<String>(weekList);
 
 
 		JCheckBox requestBoxM = new JCheckBox("Monday");
@@ -196,6 +185,34 @@ public class GuiBuilder extends JPanel implements Observer {
 		scheduleBoxS.setBounds(50, 50, 30, 30);
 		JCheckBox scheduleBoxG = new JCheckBox("Sunday");
 		scheduleBoxG.setBounds(50, 50, 30, 30);
+		
+		
+		calenderRoomBox.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				
+				 String semesester = (String) calenderBatchBox.getSelectedItem();
+				 String room = (String) calenderRoomBox.getSelectedItem();
+				 buildCalenderData(RH, semesester, room);
+				 calTable.repaint();
+				
+			}
+		});
+		
+		
+		calenderBatchBox.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				
+				 String semesester = (String) calenderBatchBox.getSelectedItem();
+				 String room = (String) calenderRoomBox.getSelectedItem();
+				 buildCalenderData(RH, semesester, room);
+				 calTable.repaint();
+				
+			
+			}
+		});
+		
 
 		// Build all buttons with listeners.
 		JButton requestSubmit = new JButton("Submit Request");
@@ -321,6 +338,7 @@ public class GuiBuilder extends JPanel implements Observer {
 						requestToBeSubmitted.add(semester);
 						requestToBeSubmitted.add(5 - priority);
 						priority++;
+					
 					}
 					else {
 						JOptionPane.showMessageDialog(null, "Choose at least one day for requests");
@@ -366,7 +384,10 @@ public class GuiBuilder extends JPanel implements Observer {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					
+					 String semesester = (String) calenderBatchBox.getSelectedItem();
+					 String roomBox = (String) calenderRoomBox.getSelectedItem();
+					 buildCalenderData(RH, semesester, roomBox);
+					 calTable.repaint();
 					
 				}
 				else {
@@ -423,8 +444,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		conflictRejectRequest.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				 buildCalenderData(RH);
-				 calTable.repaint();
+			
 			}
 		});
 
@@ -440,7 +460,80 @@ public class GuiBuilder extends JPanel implements Observer {
 		scheduleSubmit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "To Do");
+				
+				int startTime = Integer.parseInt(DATE_FORMAT_TIME_ENCODED.format((scheduleStartSpinner.getValue())));
+				int endTime = Integer.parseInt(DATE_FORMAT_TIME_ENCODED.format((scheduleEndSpinner.getValue())));
+				if (startTime < endTime) {
+					ArrayList<Integer> days = new ArrayList<Integer>();
+					String semesester = (String) scheduleBatchBox.getSelectedItem();
+					String room = (String) scheduleRoomBox.getSelectedItem();
+					String status = (String) scheduleStatusBox.getSelectedItem();
+				
+					
+					if (scheduleBoxG.isSelected()) {
+						days.add(0);
+
+					}
+					if (scheduleBoxM.isSelected()) {
+						days.add(1);
+
+					}
+					if (scheduleBoxT.isSelected()) {
+						days.add(2);
+
+					}
+					if (scheduleBoxW.isSelected()) {
+						days.add(3);
+
+					}
+					if (scheduleBoxR.isSelected()) {
+						days.add(4);
+
+					}
+					if (scheduleBoxF.isSelected()) {
+						days.add(5);
+					}
+					if (scheduleBoxS.isSelected()) {
+						days.add(6);
+					}
+					int[] dayArray = days.stream().mapToInt(i->i).toArray();
+					if (dayArray.length > 0) {
+				
+						if (status == "Closed") {
+							Request r = new Request(room,semesester, dayArray, startTime, endTime, "Closed", 99);
+							try {
+								RH.approveRequest(r);
+							} catch (SchedulerException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						else if (status == "Open") {
+							Request r = new Request(room,semesester, dayArray, startTime, endTime, "Open", -1);
+							try {
+								RH.approveRequest(r);
+							} catch (SchedulerException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						 String semesesterBox = (String) calenderBatchBox.getSelectedItem();
+						 String roomBox = (String) calenderRoomBox.getSelectedItem();
+						 buildCalenderData(RH, semesesterBox, roomBox);
+						 calTable.repaint();					
+					}
+					else {
+						JOptionPane.showMessageDialog(null, "Please Select one day");
+					}
+				
+					
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "Bad Time slot.");
+				}
+				
+				
+			
 			}
 		});
 
@@ -450,8 +543,9 @@ public class GuiBuilder extends JPanel implements Observer {
 		calenderPane.setPreferredSize(new Dimension(800, 410));
 		calenderPane.setRowHeaderView(rowTable);
 		calenderPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, rowTable.getTableHeader());
-		calenderToolBarPane.add(calenderDatePicker, BorderLayout.LINE_START);
-		calenderToolBarPane.add(calenderRoomBox, BorderLayout.LINE_END);
+		calenderToolBarPane.add(calenderRoomBox);
+		calenderToolBarPane.add(calenderBatchBox);
+		calenderToolBarPane.add(calenderWeekBox);
 		calenderWrapperPane.add(calenderToolBarPane, BorderLayout.NORTH);
 		calenderWrapperPane.add(calenderPane, BorderLayout.LINE_START);
 
@@ -586,9 +680,8 @@ public class GuiBuilder extends JPanel implements Observer {
 		ArrayList<Request> pending = RH.getPending();	
 		
 		for (int i=0; i<pending.size();i++) {
-
 			Request temp = pending.get(i);
-			Booking b = temp.getBooking();
+			Booking b = temp.getBooking();		
 			ArrayList<String> dayString = new ArrayList<String>();
 			for(int j =0; j < b.days.length; j++) {
 				int tempVal = b.days[j];
@@ -625,17 +718,22 @@ public class GuiBuilder extends JPanel implements Observer {
 		return result / 15;
 	}
 
-	public  void buildCalenderData(RequestHandler RH){		
-
-		Booking[][] week = RH.getWeek(roomList[0]);
+	public  void buildCalenderData(RequestHandler RH, String semeseter, String room){	
+		for (int j = 0; j < 96; j++) {
+			for (int i = 0; i < 7; i++) {
+				calData[j][i] = "";
+			}
+		}	
+		Booking[][] week = RH.getWeek(room);
 		for (int i = 0; i < week.length; i++) {
-			System.out.println(i);
 			Booking[] day = week[i];
 			for(int j=0; j<day.length; j++) {
-				int startCell = getTimeColum(day[j].startTime);
-				int endCell = getTimeColum(day[j].endTime);
-				for (int k = startCell; k<endCell;k++) {
-					calData[k][i] = "Booked:" + day[j].owner;
+				if (day[j].semeseter == semeseter){
+					int startCell = getTimeColum(day[j].startTime); 
+					int endCell = getTimeColum(day[j].endTime);
+					for (int k = startCell; k<endCell;k++) {
+						calData[k][i] =  day[j].owner; 
+					}
 				}
 				
 			}

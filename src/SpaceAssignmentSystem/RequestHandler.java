@@ -42,20 +42,17 @@ public class RequestHandler {
 		return week;
 	}
 	
-	public boolean validate(Request request) { 
-				
+	public boolean validate(Request request) { 				
 			
 			for(Booking b : schedule.getRoom(request.room).bookings ) {
-				if(b.overlap(request.booking)) {return false; }
-			}
+				if(b.overlap(request.booking) && b.owner != "Open") {return false; }
+			}	
+			
 			for(Request r : pending) {
 				if(r.booking.overlap(request.booking) && r.priority >= request.priority) {
 					return false;
 				}
-			}
-			for(Request r : schedule.closed) {
-				if(r.room.equals(request.room) && r.booking.overlap(request.booking)) { return false; }
-			}
+			}			
 
 			while (pending.iterator().hasNext()) {
 				Request r = pending.iterator().next();
@@ -94,10 +91,7 @@ public class RequestHandler {
 			throw new SchedulerException();
 		}
 	}
-	
-	public void close(Request r) {
-		schedule.close(r);
-	}
+
 	public Booking[] castBooking (ArrayList<Booking> booking) {
 		Booking [] temp = new Booking[booking.size()];
 		for(int i = 0; i < booking.size(); i++) {
