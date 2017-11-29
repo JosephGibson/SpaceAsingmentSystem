@@ -6,8 +6,8 @@ import java.util.Observable;
 
 public class Scheduler extends Observable{
 	private Room[] rooms;
-	private String[] names = {"room1", "room2", "room3", "room4", "room5"};
-	public ArrayList<Request> closed;
+	private String[] names = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
+	public ArrayList<Request> closed = new <Request> ArrayList();
 	
 	public Scheduler(){ 
 		rooms = new Room[names.length];
@@ -78,5 +78,6 @@ public class Scheduler extends Observable{
 		setChanged();
 		super.notifyObservers(o);
 	}
+
 	
 }

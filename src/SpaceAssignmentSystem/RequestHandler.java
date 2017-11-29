@@ -1,14 +1,19 @@
 package SpaceAssignmentSystem;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
+
+
 public class RequestHandler {
 	private Scheduler schedule;
-	private ArrayList<Request> pending;
+
+	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
+	private ArrayList<Request> pending  = new <Request>ArrayList();;
 	private Queue<Request> denied;
-	//
+	
 	
 	public RequestHandler(Scheduler s) {
 		schedule = s; 
@@ -23,7 +28,7 @@ public class RequestHandler {
 		ArrayList<Booking> thrus = new ArrayList<Booking>();
 		ArrayList<Booking> fri = new ArrayList<Booking>();
 		ArrayList<Booking> sat = new ArrayList<Booking>();
-		int[] counts = new int[7];
+		int[] counts = new int[6];
 		for(Booking b : schedule.getRoom(r).bookings) {
 			for(int i : b.days) {
 				if(i == 0) { sun.add(b); counts[0]++; }
@@ -35,33 +40,47 @@ public class RequestHandler {
 				else if(i == 6) { sat.add(b); counts[6]++; }
 			}
 		}
-		Booking[][] week =  {(Booking[])sun.toArray(), (Booking[])mon.toArray(), (Booking[])tues.toArray(), (Booking[])wednes.toArray(), (Booking[])thrus.toArray(), (Booking[])fri.toArray(), (Booking[])sat.toArray()};
+		Booking[][] week =  {castBooking(sun), castBooking(mon), castBooking(tues), castBooking(wednes), castBooking(thrus), castBooking(fri), castBooking(sat)};
 		return week;
 	}
 	
-	public boolean validate(Request request){
-		for(Booking b : schedule.getRoom(request.room).bookings ) {
-			if(b.overlap(request.booking)) { return false; }
-		}
-		for(Request r : pending) {
-			if(r.booking.overlap(request.booking) && r.priority > request.priority) {
-				return false;
+	public boolean validate(Request request) { 
+				
+			
+			for(Booking b : schedule.getRoom(request.room).bookings ) {
+				if(b.overlap(request.booking)) { System.out.println("already booked"); return false; }
 			}
-		}
-		for(Request r : schedule.closed) {
-			if(r.room.equals(request.room) && r.booking.overlap(request.booking)) { return false; }
-		}
-		for(Request r : pending) {
-			if(r.booking.overlap(request.booking)) {
-				pending.remove(r);
-				denied.add(r);
+			for(Request r : pending) {
+				if(r.booking.overlap(request.booking) && r.priority >= request.priority) {
+					return false;
+				}
 			}
-		}
-		return true;
-	}
+			for(Request r : schedule.closed) {
+				if(r.room.equals(request.room) && r.booking.overlap(request.booking)) { return false; }
+			}
+
+			while (pending.iterator().hasNext()) {
+				Request r = pending.iterator().next();
+				if(r.booking.overlap(request.booking)) {
+					System.out.println("overlapping");
+					pending.remove(r);
+					return false;
+				}
+				else if (!r.booking.overlap(request.booking)) {
+					return true;
+				}
+			}
+				
+			return true;
 	
-	public void sendRequest(Request r) {
-		if(validate(r)) {
+	}
+	public ArrayList<Request> getPending(){
+		return pending;
+	};
+	public void sendRequest(Request r) {		
+		System.out.println("VALID?" + validate(r));
+		if(validate(r)) {		
+			System.out.println("Size of valids: " + pending.size());
 			pending.add(r);
 		}
 	}
@@ -71,11 +90,15 @@ public class RequestHandler {
 		denied.add(r);
 	}
 	
+	public void removeRequest(Request r) {
+		pending.remove(r);
+	}
+	
 	public void approveRequest(Request r) throws SchedulerException {
-		if(validate(r)) {
+		try {
 			schedule.approveRequest(r);
 		}
-		else {
+		catch (SchedulerException e1) {
 			throw new SchedulerException();
 		}
 	}
@@ -83,5 +106,12 @@ public class RequestHandler {
 	public void close(Request r) {
 		schedule.close(r);
 	}
+	public Booking[] castBooking (ArrayList<Booking> booking) {
+		Booking [] temp = new Booking[booking.size()];
+		for(int i = 0; i < booking.size(); i++) {
+			temp[i] = booking.get(i);
+		}
+		return temp;
+	};
 	
 }
