@@ -30,7 +30,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 		addColumn(column);
 		column.setCellRenderer(new RowNumberRenderer());
 
-		getColumnModel().getColumn(0).setPreferredWidth(75);
+		getColumnModel().getColumn(0).setPreferredWidth(125);
 		setPreferredScrollableViewportSize(getPreferredSize());
 	}
 	@Override
@@ -164,8 +164,15 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 			cal.set(Calendar.SECOND,0);
 			cal.set(Calendar.MILLISECOND,0);
 			cal.add(Calendar.MINUTE, 15 * i);
+			Calendar cal2 = Calendar.getInstance();
+			cal2.set(Calendar.HOUR_OF_DAY,00);
+			cal2.set(Calendar.MINUTE,00);
+			cal2.set(Calendar.SECOND,0);
+			cal2.set(Calendar.MILLISECOND,0);
+			cal2.add(Calendar.MINUTE, 15 * (i+1));
 			SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("hh:mm a");
-			String temp =  DATE_FORMAT.format((cal.getTime()));
+			
+			String temp =  DATE_FORMAT.format((cal.getTime())) + "-" + DATE_FORMAT.format((cal2.getTime()));
 			return temp;
 			
 		}

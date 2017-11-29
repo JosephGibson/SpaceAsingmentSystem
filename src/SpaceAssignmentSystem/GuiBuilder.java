@@ -40,7 +40,7 @@ public class GuiBuilder extends JPanel implements Observer {
 
 	public GuiBuilder(RequestHandler RH) throws SchedulerException {
 
-		String[] calColumnNames = { "Monday", "Tuesday", "Wendsday", "Thursday", "Friday", "Saturday", "Sunday" };
+		String[] calColumnNames = {  "Sunday", "Monday", "Tuesday", "Wendsday", "Thursday", "Friday", "Saturday" };
 		String[] requestColumnNames = { "Priority", "Name", "Room", "Time" };
 		String[] noConflictColumnNames = {"ID", "Name", "Room", "Time"};
 
@@ -61,6 +61,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		calTable.setEnabled(false);
 		JTable rowTable = new RowNumberTable(calTable);
 		rowTable.setEnabled(false);
+
 		requestTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 		requestTable.getColumnModel().getColumn(1).setPreferredWidth(60);
 		requestTable.getColumnModel().getColumn(2).setPreferredWidth(80);
@@ -423,6 +424,7 @@ public class GuiBuilder extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				 buildCalenderData(RH);
+				 calTable.repaint();
 			}
 		});
 
@@ -610,16 +612,12 @@ public class GuiBuilder extends JPanel implements Observer {
 	public int getTimeColum(int i) {
 		int x1 =0, x2 =0 ,x3 =0 ,x4 =0;
 		while (i > 0) {
-		    System.out.println( i % 10);
 		    x1 = i % 10;
 		    i = i / 10;
-		    System.out.println( i % 10);
 		    x2 = i % 10;
 		    i = i / 10;
-		    System.out.println( i % 10);
 		    x3 = i % 10;
 		    i = i / 10;
-		    System.out.println( i % 10);
 		    x4 = i % 10;
 		    i = i / 10;		    
 		}
@@ -627,28 +625,21 @@ public class GuiBuilder extends JPanel implements Observer {
 		return result / 15;
 	}
 
-	public  Object[][] buildCalenderData(RequestHandler RH){
-		
-	
+	public  void buildCalenderData(RequestHandler RH){		
 
-
-
-		
-		
-
-	//	Booking[][] week = RH.getWeek(roomList[0]);
-	//	for (int i = 0; i < week.length; i++) {
-	//		Booking[] day = week[i];
-	//		for(int j=0; j<day.length; j++) {
-	//			System.out.println(day[j].owner);
-	//		}
-	//	}
-			
-			
-			
-			
-			return null;
-		
+		Booking[][] week = RH.getWeek(roomList[0]);
+		for (int i = 0; i < week.length; i++) {
+			System.out.println(i);
+			Booking[] day = week[i];
+			for(int j=0; j<day.length; j++) {
+				int startCell = getTimeColum(day[j].startTime);
+				int endCell = getTimeColum(day[j].endTime);
+				for (int k = startCell; k<endCell;k++) {
+					calData[k][i] = "Booked:" + day[j].owner;
+				}
+				
+			}
+		}
 	}
 	
 	@Override
