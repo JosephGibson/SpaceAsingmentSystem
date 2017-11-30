@@ -48,11 +48,10 @@ public class GuiBuilder extends JPanel implements Observer {
 		// Create the table for displaying rooms:
 		JTable calTable = new JTable(calData, calColumnNames);
 		JTable requestTable = new JTable(requestData, requestColumnNames);
-		JTable conflictTable = new JTable(noConflictData, noConflictColumnNames);
 		JTable noConflictTable = new JTable(noConflictData, noConflictColumnNames); 
 
 		// Set the cell rendering to center for all cells.
-		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer centerRenderer = new CustomRenderer();
 		centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 		for (int x = 0; x < calTable.getColumnCount(); x++) {
 			calTable.getColumnModel().getColumn(x).setCellRenderer(centerRenderer);
@@ -427,31 +426,6 @@ public class GuiBuilder extends JPanel implements Observer {
 			}
 		});
 
-		JButton conflictApproveRequest = new JButton("Approve Request");
-		conflictApproveRequest.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				JOptionPane.showMessageDialog(null, "To Do");
-			}
-		});
-
-		JButton conflictRejectRequest = new JButton("Auto Resolve Conflicts");
-		conflictRejectRequest.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			
-			}
-		});
-
-		JButton conflictResolve = new JButton("Reject Request");
-		conflictResolve.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "To Do");
-			}
-		});
-
 		JButton scheduleSubmit = new JButton("Update Schedule");
 		scheduleSubmit.addActionListener(new ActionListener() {
 			@Override
@@ -460,69 +434,75 @@ public class GuiBuilder extends JPanel implements Observer {
 				int startTime = Integer.parseInt(DATE_FORMAT_TIME_ENCODED.format((scheduleStartSpinner.getValue())));
 				int endTime = Integer.parseInt(DATE_FORMAT_TIME_ENCODED.format((scheduleEndSpinner.getValue())));
 				if (startTime < endTime) {
-					ArrayList<Integer> days = new ArrayList<Integer>();
+					int[] days = {-1, -1, -1, -1, -1, -1, -1};
+					boolean atLeastOneday = false;
 					String semesester = (String) scheduleBatchBox.getSelectedItem();
 					String room = (String) scheduleRoomBox.getSelectedItem();
 					String status = (String) scheduleStatusBox.getSelectedItem();
 				
 					
 					if (scheduleBoxG.isSelected()) {
-						days.add(0);
+						days[0] = 0;
+						atLeastOneday = true;
 
 					}
 					if (scheduleBoxM.isSelected()) {
-						days.add(1);
+						days[1] = 1;
+						atLeastOneday = true;
 
 					}
 					if (scheduleBoxT.isSelected()) {
-						days.add(2);
+						days[2] = 2;
+						atLeastOneday = true;
 
 					}
 					if (scheduleBoxW.isSelected()) {
-						days.add(3);
+						days[3] = 3;
+						atLeastOneday = true;
 
 					}
 					if (scheduleBoxR.isSelected()) {
-						days.add(4);
+						days[4] = 4;
+						atLeastOneday = true;
 
 					}
 					if (scheduleBoxF.isSelected()) {
-						days.add(5);
+						days[5] = 5;
+						atLeastOneday = true;
 					}
 					if (scheduleBoxS.isSelected()) {
-						days.add(6);
+						days[6] = 6;
+						atLeastOneday = true;
 					}
-					int[] dayArray = days.stream().mapToInt(i->i).toArray();
-					if (dayArray.length > 0) {
-				
-						if (status == "Closed") {
-							Request r = new Request(room,semesester, dayArray, startTime, endTime, "Closed", 99);
+					if (atLeastOneday) {
+						if (status == "Close") {
+							Request r = new Request(room,semesester, days, startTime, endTime, "closed", 99);
 							try {
-								RH.approveRequest(r);
+								RH.updateSchedule(r);
 							} catch (SchedulerException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
 						else if (status == "Open") {
-							Request r = new Request(room,semesester, dayArray, startTime, endTime, "Open", -1);
+							Request r = new Request(room,semesester, days, startTime, endTime, "open", -1);
 							try {
-								RH.approveRequest(r);
+								RH.updateSchedule(r);
 							} catch (SchedulerException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						}
-						 String semesesterBox = (String) calenderBatchBox.getSelectedItem();
-						 String roomBox = (String) calenderRoomBox.getSelectedItem();
-						 buildCalenderData(RH, semesesterBox, roomBox);
-						 calTable.repaint();					
+						String semesesterBox = (String) calenderBatchBox.getSelectedItem();
+						String roomBox = (String) calenderRoomBox.getSelectedItem();
+						buildCalenderData(RH, semesesterBox, roomBox);
+						calTable.repaint();					
 					}
 					else {
 						JOptionPane.showMessageDialog(null, "Please Select one day");
 					}
-				
-					
+
+
 				}
 				else {
 					JOptionPane.showMessageDialog(null, "Bad Time slot.");
@@ -667,7 +647,7 @@ public class GuiBuilder extends JPanel implements Observer {
 		
 		for (int i=0; i<pending.size();i++) {
 			Request temp = pending.get(i);
-			Booking b = temp.getBooking();		
+			Booking b = temp.booking;		
 			ArrayList<String> dayString = new ArrayList<String>();
 			for(int j =0; j < b.days.length; j++) {
 				int tempVal = b.days[j];
@@ -681,8 +661,8 @@ public class GuiBuilder extends JPanel implements Observer {
 					
 			}
 			noConflictData[i][0] = i + 1; 
-			noConflictData[i][1] = b.getOwner(); 
-			noConflictData[i][2] = temp.getRoom(); 
+			noConflictData[i][1] = b.owner; 
+			noConflictData[i][2] = temp.room; 
 			noConflictData[i][3] =  b.semeseter.replace(" Semester", "") + ": " + dayString + " " + DATE_FORMAT_DISPLAY.format((DATE_FORMAT_TIME_ENCODED.parse(String.valueOf(b.startTime)))) +  "-" + DATE_FORMAT_DISPLAY.format((DATE_FORMAT_TIME_ENCODED.parse(String.valueOf(b.endTime))));	
 		}
 		return noConflictData;
@@ -730,6 +710,23 @@ public class GuiBuilder extends JPanel implements Observer {
 	public void update(Observable o, Object arg) {
 
 
+	}
+	
+	class CustomRenderer extends DefaultTableCellRenderer {
+	private static final long serialVersionUID = 6703872492730589499L;
+	   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column){
+
+	       Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+	        if(!table.getValueAt(row, column).equals("") && !table.getValueAt(row, column).equals("closed")){
+	            cellComponent.setBackground(Color.GRAY);
+	        } else if(table.getValueAt(row, column).equals("closed")) {
+	           cellComponent.setBackground(Color.RED);
+	        } else {
+	        	cellComponent.setBackground(Color.GREEN);
+	        }
+	        return cellComponent;
+	    }
 	}
 
 }
