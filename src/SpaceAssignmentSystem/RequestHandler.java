@@ -2,18 +2,12 @@ package SpaceAssignmentSystem;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-
-
 
 public class RequestHandler {
 	private Scheduler schedule;
+	private ArrayList<Request> pending  = new ArrayList<Request>();
+	private ArrayList<Request> closed = new ArrayList<Request>();
 
-	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
-	private ArrayList<Request> pending  = new <Request>ArrayList();;
-
-	
 	public RequestHandler(Scheduler s) {
 		schedule = s; 
 	}
@@ -53,19 +47,26 @@ public class RequestHandler {
 					return false;
 				}
 			}		
-			for(Request r : schedule.closed) {
+			for(Request r : closed) {
 					if(r.room.equals(request.room) && r.booking.overlap(request.booking)) { return false; }
 			}
 				
 			return true;
 	
 	}
-	public void close(Request r) {
-			schedule.close(r);
-	}
+	
 	public ArrayList<Request> getPending(){
-		return pending;
-	};
+		ArrayList<Request> temp = new ArrayList<Request>();
+		temp.addAll(pending);
+		return temp;
+	}
+	
+	public ArrayList<Request> getClosed(){
+		ArrayList<Request> temp = new ArrayList<Request>();
+		temp.addAll(closed);
+		return temp;
+	}
+	
 	public void sendRequest(Request r) {		
 		if(validate(r)) {		
 			pending.add(r);
@@ -94,5 +95,31 @@ public class RequestHandler {
 		}
 		return temp;
 	};
+	
+	public void updateSchedule(Request r) throws SchedulerException {
+		if( r.booking.owner.equals("open") ){
+			Iterator<Booking> it = schedule.getRoom(r.room).bookings.iterator();
+			while( it.hasNext() ) {
+				Booking b= it.next();
+				if(b.overlap(r.booking)) {
+					it.remove();
+				}
+			}
+			for (int k = 0; k <closed.size(); k++) {			
+				if(r.booking.overlap(closed.get(k).booking)){
+					closed.remove(closed.get(k));
+				}
+			}
+			return;
+		}
+	
+		else if( r.booking.owner.equals("closed") ) {
+			closed.add(r);
+			return;
+		}
+		else {
+			throw new SchedulerException();
+		}
+	}
 	
 }

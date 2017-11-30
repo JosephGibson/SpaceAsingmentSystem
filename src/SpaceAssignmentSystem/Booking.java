@@ -20,9 +20,7 @@ public class Booking {
 		boolean sharedDay = false;
 		for(int i : days) {
 			for(int j : b.days) {
-	
-				if( i == j ) {
-								sharedDay = true; }
+				if( i == j && i != -1) { sharedDay = true; }
 			}
 		}
 		if(!sharedDay) {return false; }
@@ -31,27 +29,4 @@ public class Booking {
 		else{ return false; }
 	}
 
-	public String getSemeseter() { 
-		return semeseter;
-	}
-
-	public void setSemeseter(String semeseter) {
-		this.semeseter = semeseter;
-	}
-
-	public int[] getDays() {
-		return days;
-	}
-
-	public int getStartTime() {
-		return startTime;
-	}
-
-	public int getEndTime() {
-		return endTime;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
 }

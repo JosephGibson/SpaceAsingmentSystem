@@ -1,12 +1,10 @@
 package SpaceAssignmentSystem;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Observable;
 
 public class Scheduler extends Observable{
 	private Room[] rooms;
-	public ArrayList<Request> closed = new <Request> ArrayList();
 	private static String[] names = { "Class Room 1", "Class Room 2", "Class Room 3", "Gym", "Libary", "Music Room", "Theater" };
 
 	public Scheduler(){ 
@@ -14,7 +12,6 @@ public class Scheduler extends Observable{
 		for (String s : names) {
 			build(s);
 		}
-		closed = new ArrayList<Request>();
 	}
 	
 	public Scheduler(String[] nms){ 
@@ -23,13 +20,6 @@ public class Scheduler extends Observable{
 		for (String s : names) {
 			build(s);
 		}
-		closed = new ArrayList<Request>();
-
-
-	}
-	
-	public RequestHandler createRequestHandler() {
-		return new RequestHandler(this);
 	}
 	
 	public Room getRoom(String s) { 
@@ -39,11 +29,6 @@ public class Scheduler extends Observable{
 	public static String[] roomNames() {
 		return names;
 	}
-	
-	public void close(Request r) {
-			closed.add(r);
-	}
-
 	
 	public void approveRequest(Request r) throws SchedulerException {
 		int i = pick(r.room);
@@ -80,6 +65,10 @@ public class Scheduler extends Observable{
 	public void notifyObservers(Object o) {
 		setChanged();
 		super.notifyObservers(o);
+	}
+	
+	public boolean removeBooking(Booking b, String r) {
+		return rooms[pick(r)].bookings.remove(b);
 	}
 
 	
