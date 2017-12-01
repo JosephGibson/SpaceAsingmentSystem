@@ -99,7 +99,6 @@ public class RequestHandler {
 	public void updateSchedule(Request r) throws SchedulerException {
 		if( r.booking.owner.equals("open") ){
 			Iterator<Booking> it = schedule.getRoom(r.room).bookings.iterator();
-<<<<<<< HEAD
 			while( it.hasNext() ) {
 				Booking b= it.next();
 				if(b.overlap(r.booking)) {
@@ -111,10 +110,7 @@ public class RequestHandler {
 					closed.remove(closed.get(k));
 				}
 			}
-			return;
-		}
-	
-=======
+
 			System.out.println(schedule.getRoom(r.room).bookings.size());
 			while( it.hasNext() ) {
 				Booking b= it.next();
@@ -125,7 +121,7 @@ public class RequestHandler {
 			System.out.println(schedule.getRoom(r.room).bookings.size());
 			return;
 		}
->>>>>>> refs/remotes/origin/master
+
 		else if( r.booking.owner.equals("closed") ) {
 			closed.add(r);
 			return;

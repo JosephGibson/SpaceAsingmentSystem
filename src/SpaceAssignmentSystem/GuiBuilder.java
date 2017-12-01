@@ -475,11 +475,9 @@ public class GuiBuilder extends JPanel implements Observer {
 						atLeastOneday = true;
 					}
 					if (atLeastOneday) {
-<<<<<<< HEAD
+
 						if (status == "Closed") {
-=======
-						if (status == "Close") {
->>>>>>> refs/remotes/origin/master
+
 							Request r = new Request(room,semesester, days, startTime, endTime, "closed", 99);
 							try {
 								RH.updateSchedule(r);
@@ -753,21 +751,5 @@ public class GuiBuilder extends JPanel implements Observer {
 		
 	}
 	
-	class CustomRenderer extends DefaultTableCellRenderer {
-	private static final long serialVersionUID = 6703872492730589499L;
-	   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column){
-
-	       Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-	        if(!table.getValueAt(row, column).equals("") && !table.getValueAt(row, column).equals("closed")){
-	            cellComponent.setBackground(Color.GRAY);
-	        } else if(table.getValueAt(row, column).equals("closed")) {
-	           cellComponent.setBackground(Color.RED);
-	        } else {
-	        	cellComponent.setBackground(Color.GREEN);
-	        }
-	        return cellComponent;
-	    }
-	}
 
 }
